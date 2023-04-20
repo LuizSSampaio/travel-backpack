@@ -1,11 +1,10 @@
 const form = document.querySelector("#novoItem");
 const list = document.querySelector("#list");
-const items =
-    localStorage.getItem("items") != undefined
-        ? /*localStorage.getItem("items")*/ []
-        : [];
+const items = JSON.parse(localStorage.getItem("items")) || [];
 
-console.log(localStorage.getItem("items"));
+items.forEach((element) => {
+    elementToTheList(element.name, element.quantity);
+});
 
 form.addEventListener("submit", (eventSubmit) => {
     eventSubmit.preventDefault();
@@ -13,11 +12,16 @@ form.addEventListener("submit", (eventSubmit) => {
     const nameElement = eventSubmit.target["nome"];
     const quantityElement = eventSubmit.target["quantidade"];
 
-    insertElement(createListItem(nameElement.value, quantityElement.value));
+    storageNewListItem(nameElement.value, quantityElement.value);
+    elementToTheList(nameElement.value, quantityElement.value);
 
     nameElement.value = "";
     quantityElement.value = 1;
 });
+
+function elementToTheList(name, quantity) {
+    insertElement(createListItem(name, quantity));
+}
 
 function createListItem(name, quantity) {
     const itemQuantity = document.createElement("strong");
@@ -28,11 +32,13 @@ function createListItem(name, quantity) {
     listItem.innerHTML += name;
     listItem.classList.add("item");
 
-    items.push(JSON.stringify({ name, quantity }));
-
-    localStorage.setItem("items", items);
-
     return listItem;
+}
+
+function storageNewListItem(name, quantity) {
+    items.push({ name, quantity });
+
+    localStorage.setItem("items", JSON.stringify(items));
 }
 
 function insertElement(element) {
