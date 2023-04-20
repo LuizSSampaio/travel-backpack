@@ -9,11 +9,11 @@ items.forEach((element) => {
 form.addEventListener("submit", (eventSubmit) => {
     eventSubmit.preventDefault();
 
-    const nameElement = eventSubmit.target["nome"];
-    const quantityElement = eventSubmit.target["quantidade"];
+    const name = eventSubmit.target["nome"].value;
+    const quantity = eventSubmit.target["quantidade"].value;
 
-    storageNewListItem(nameElement.value, quantityElement.value);
-    elementToTheList(nameElement.value, quantityElement.value);
+    storageNewListItem(name, quantity);
+    elementToTheList(name, quantity);
 
     nameElement.value = "";
     quantityElement.value = 1;
