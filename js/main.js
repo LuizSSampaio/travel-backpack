@@ -3,7 +3,7 @@ const list = document.querySelector("#list");
 const items = JSON.parse(localStorage.getItem("items")) || [];
 
 items.forEach((element) => {
-    elementToTheList(element);
+    insertElement(createListItem(element));
 });
 
 form.addEventListener("submit", (eventSubmit) => {
@@ -13,34 +13,46 @@ form.addEventListener("submit", (eventSubmit) => {
     const quantityTarget = eventSubmit.target["quantidade"];
 
     const element = {
-        "name": nameTarget.value,
-        "quantity": quantityTarget.value
+        name: nameTarget.value,
+        quantity: quantityTarget.value,
     };
 
-    const existElement = items.find(elementToFind => elementToFind.name === element.name);
+    const existElement = items.find(
+        (elementToFind) => elementToFind.name === element.name
+    );
 
+    if (nameTarget.value != "") {
+        if (existElement) {
+            element.id = existElement.id;
 
-    if (existElement) {
-        element.id = existElement.id;
+            editListItem(element);
 
-        editListItem(element);
+            items[existElement.id] = element;
+        } else {
+            element.id = generateID();
 
-        items[existElement.id] = element;
-    } else {
-        element.id = items.length
+            items.push(element);
+            insertElement(createListItem(element));
+        }
 
-        items.push(element)
-        elementToTheList(element);
-    };
-
-    localStorage.setItem("items", JSON.stringify(items))
+        saveLocalStorage("items", JSON.stringify(items));
+    }
 
     nameTarget.value = "";
     quantityTarget.value = 1;
 });
 
-function elementToTheList(element) {
-    insertElement(createListItem(element));
+function generateID() {
+    console.log(items.length);
+    if (items.length != 0) {
+        return items[items.length - 1].id + 1;
+    } else {
+        return 0;
+    }
+}
+
+function saveLocalStorage(key, value) {
+    localStorage.setItem(key, value);
 }
 
 function createListItem(element) {
@@ -52,14 +64,38 @@ function createListItem(element) {
     listItem.appendChild(itemQuantity);
     listItem.innerHTML += element.name;
     listItem.classList.add("item");
+    listItem.appendChild(createDeleteButton(element.id));
 
     return listItem;
 }
 
 function editListItem(element) {
-    document.querySelector(`[data-id="${element.id}"]`).innerHTML = element.quantity
+    document.querySelector(`[data-id="${element.id}"]`).innerHTML =
+        element.quantity;
 }
 
 function insertElement(element) {
     list.appendChild(element);
+}
+
+function createDeleteButton(id) {
+    const button = document.createElement("button");
+    button.innerText = "X";
+
+    button.addEventListener("click", function () {
+        deleteElement(this.parentNode, id);
+    });
+
+    return button;
+}
+
+function deleteElement(tag, id) {
+    tag.remove();
+
+    items.splice(
+        items.findIndex((element) => element.id === id),
+        1
+    );
+
+    saveLocalStorage("items", JSON.stringify(items));
 }
